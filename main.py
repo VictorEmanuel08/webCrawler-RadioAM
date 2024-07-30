@@ -49,7 +49,7 @@ class RadioAmBot(scrapy.Spider):
                     json.dump([dados_json], json_file, ensure_ascii=False, indent=4)
         else:
             # Extrai o elemento <p> com a classe 'programaNoAr__titulo'
-            titulo_programa = response.css('p.programaNoAr__titulo::text').extract_first()
+            titulo_programa = response.css('h2.programaNoAr__titulo::text').extract_first()
             if titulo_programa:
                 # Cria um dicionário com o título do programa
                 dados_json = {'titulo_programa': titulo_programa.strip().upper()}
@@ -61,7 +61,7 @@ class RadioAmBot(scrapy.Spider):
                         json.dump([dados_json], json_file, ensure_ascii=False, indent=4)
 
             # Extrai o elemento <p> com a classe 'programaNoAr__apresentador'
-            nome_apresentador = response.css('p.programaNoAr__apresentador::text').extract_first()
+            nome_apresentador = response.css('h3.programaNoAr__apresentador::text').extract_first()
             if nome_apresentador:
                 # Cria um dicionário com o nome do apresentador
                 dados_json = {'nome_apresentador': nome_apresentador.strip().upper()}
