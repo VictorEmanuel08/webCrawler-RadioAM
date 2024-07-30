@@ -1,10 +1,12 @@
 import scrapy
 import json
 import os
+import datetime
+import locale
 
 class RadioAmBot(scrapy.Spider):
     name = "Radio AM Bot"
-    start_urls = ["https://imirante.com/miranteam", "https://imirante.com/miranteam/noticias"]
+    start_urls = ["https://imirante.com/mirantenews", "https://imirante.com/mirantenews/noticias"]
     
     def parse(self, response):
         # Definindo os caminhos de salvamento
@@ -13,7 +15,7 @@ class RadioAmBot(scrapy.Spider):
         
         if "noticias" in response.url:
             # Extrai todos os elementos <h3> com a classe 'artigoListagem__titulo'
-            array = response.css('h3.artigoListagem__titulo::text').extract()
+            array = response.css('h2.artigoListagem__titulo::text').extract()
             
             # Cria uma lista para armazenar os objetos JSON
             noticias = []
@@ -31,8 +33,11 @@ class RadioAmBot(scrapy.Spider):
             # Converte todos os títulos para letras maiúsculas
             noticias_uppercase = [titulo['noticia'].upper() for titulo in noticias]
 
-            # Cria uma string para armazenar os títulos separados por '|'
-            noticias_concatenados = ' | '.join(noticias_uppercase)
+            # Cria uma string para armazenar os títulos separados por '■'
+            noticias_concatenados = ' ■ '.join(noticias_uppercase)
+            
+            # Adiciona a mensagem final
+            noticias_concatenados += ' ■ Acesse: mirantenews.com ■ '
 
             # Cria um dicionário com a chave 'noticias' e a string concatenada como valor
             dados_json = {'noticias': noticias_concatenados}
@@ -66,3 +71,23 @@ class RadioAmBot(scrapy.Spider):
                     nome_apresentador_path = os.path.join(path, 'nome_apresentador.json')
                     with open(nome_apresentador_path, 'w', encoding='utf-8') as json_file:
                         json.dump([dados_json], json_file, ensure_ascii=False, indent=4)
+        
+         # Configurar o locale para português do Brasil
+        locale.setlocale(locale.LC_TIME, 'pt_BR.utf8')
+        
+        #Obter a data de hoje
+        hoje = datetime.datetime.now()
+
+        # Formatar a data
+        data_formatada = hoje.strftime("%d %b").upper()
+
+        # Criar um dicionário com a data formatada
+        data_json = [{
+            "data": data_formatada
+        }]
+
+        # Salvando data.json
+        for path in [save_path_remote, save_path_local]:
+            data_path = os.path.join(path, 'data.json')
+            with open(data_path, 'w', encoding='utf-8') as json_file:
+                json.dump(data_json, json_file, ensure_ascii=False, indent=4)               
